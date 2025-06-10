@@ -1,0 +1,12 @@
+{
+  "manifest_version": 2,
+  "name": "Start Page",
+  "version": "1.0",
+  "description": "My personalized new tab page, directly from an extension.",
+  "chrome_url_overrides": {
+    "newtab": "index.html"
+  },
+  "icons": {
+    "48": "icon.png"
+  }
+}
