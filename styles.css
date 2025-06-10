@@ -23,10 +23,10 @@ body {
 }
 
 .datetime-line {
-  font-size: 1.2rem;
+  font-size: 2rem;
   font-weight: 500;
   margin-bottom: 40px;
-  color: #ccc;
+  color: #fff;
 }
 
 .icon-grid {
