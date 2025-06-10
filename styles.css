@@ -33,7 +33,7 @@ body {
   display: grid;
   grid-template-columns: repeat(8, 1fr);
   gap: 25px;
-  margin-bottom: 20px;
+  margin-bottom: 32px;
   justify-content: center;
 }
 
