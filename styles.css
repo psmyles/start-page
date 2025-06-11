@@ -7,7 +7,7 @@
 
 body {
   margin: 0;
-  background-color: #111;
+  background-color: #000;
   font-family: 'swedenSans', sans-serif;
   color: white;
   display: flex;
@@ -20,27 +20,17 @@ body {
   text-align: center;
 }
 
-.logo {
-  font-size: 2rem;
-  margin-bottom: 20px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 10px;
-}
-
 .datetime-line {
   font-size: 3.5rem;
-  font-weight: 500;
-  margin-bottom: 60px;
+  margin-bottom: 5rem;
   color: #fff;
 }
 
 .icon-grid {
   display: grid;
   grid-template-columns: repeat(8, 1fr);
-  gap: 25px;
-  margin-bottom: 32px;
+  gap: 1rem;
+  margin-bottom: 2rem;
   justify-content: center;
 }
 
@@ -48,27 +38,26 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 8px;
+  gap: .8rem;
   text-decoration: none;
   color: inherit;
-  padding: 8px;
-  border-radius: 12px;
+  padding: .5rem;
+  border-radius: 1rem;
   transition: background-color 0.2s;
 }
 
 .icon:hover {
-  background-color: rgba(255, 255, 255, 0.05);
+  background-color: #1f1f1f;
   cursor: pointer;
 }
 
 .icon img {
-  width: 48px;
-  height: 48px;
-  background-color: #111;
-  border-radius: 12px;
-  padding: 8px;
+  width: 3rem;
+  height: 3rem;
+  border-radius: 1rem;
+  padding: .4rem;
 }
 
 .icon span {
-  font-size: 0.9rem;
+  font-size: 1rem;
 }
