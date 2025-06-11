@@ -19,4 +19,4 @@ function updateDateTime() {
 
 // Update every second
 updateDateTime();
-setInterval(updateDateTime, 100000);
+setInterval(updateDateTime, 10000);
