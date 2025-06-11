@@ -1,7 +1,14 @@
+@font-face {
+  font-family: 'swedenSans';
+  src: url('fonts/SwedenSansRegular.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
 body {
   margin: 0;
   background-color: #111;
-  font-family: sans-serif;
+  font-family: 'swedenSans', sans-serif;
   color: white;
   display: flex;
   justify-content: center;
