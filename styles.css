@@ -16,6 +16,7 @@ body {
 
 .container {
   text-align: center;
+  width: 100%;
 }
 
 .datetime-line {
@@ -24,15 +25,20 @@ body {
   color: #c9c9c9;
 }
 
+/* Updated Grid Styles */
 .icon-grid {
-  display: grid;
-  grid-template-columns: repeat(8, 1fr);
-  gap: 0.1rem;
-  margin-bottom: 1.6rem;
-  justify-content: center;
+  display: flex;            /* Enables flexible layout */
+  flex-wrap: wrap;          /* Allows items to wrap to the next line */
+  justify-content: center;  /* Centers all items, including the last row */
+  gap: 1rem;                /* Spacing between items */
+  
+  width: 90%; 
+  max-width: 1000px;        /* Prevents the grid from getting too wide on large screens */
+  margin: 0 auto 1.6rem auto;
 }
 
 .icon {
+  width: 110px;             /* Fixed width ensures consistent alignment */
   display: flex;
   flex-direction: column;
   align-items: center;
