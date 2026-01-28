@@ -115,7 +115,7 @@ body {
   right: 0;
   bottom: 0;
   background-color: #333;
-  transition: .4s;
+  transition: .2s;
   border-radius: 22px;
 }
 
@@ -132,7 +132,7 @@ body {
 }
 
 input:checked + .slider {
-  background-color: #00803c;
+  background-color: #005230;
 }
 
 input:checked + .slider:before {
@@ -140,7 +140,7 @@ input:checked + .slider:before {
 }
 
 .toggle-text {
-  font-weight: bold;
+  color: #c9c9c9;
 }
 
 /* --- MOBILE RESPONSIVENESS --- */
