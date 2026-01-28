@@ -6,11 +6,18 @@
 
 body {
   margin: 0;
-  background-color: #000;
+  
+  /* --- NEW BACKGROUND --- */
+  background-color: #000000;
+  opacity: 1;
+  background-image: linear-gradient(#151515 1.2px, transparent 1.2px), linear-gradient(to right, #151515 1.2px, #000000 1.22px);
+  background-size: 32px 32px;
+  /* ---------------------- */
+
   font-family: 'swedenSans', sans-serif;
   color: #c9c9c9;
   display: flex;
-  flex-direction: column; /* Changed to column to stack elements nicely */
+  flex-direction: column;
   justify-content: center;
   align-items: center;
   min-height: 100vh;
@@ -26,6 +33,8 @@ body {
   font-size: 3.6rem;
   margin-bottom: 4rem;
   color: #c9c9c9;
+  /* Optional: Add a text shadow to make time pop against the grid */
+  text-shadow: 0 2px 4px rgba(0,0,0,0.8);
 }
 
 .icon-grid {
@@ -51,10 +60,12 @@ body {
   transition: background-color 0.2s;
   overflow: hidden;
   text-align: center;
+  /* Optional: Make icons slightly distinct from the grid background */
+  background-color: rgba(0, 0, 0, 0.3); 
 }
 
 .icon:hover {
-  background-color: #222;
+  background-color: #121212;
 }
 
 .icon img {
@@ -77,7 +88,10 @@ body {
   gap: 10px;
   font-size: 0.9rem;
   color: #888;
-  z-index: 10; /* Ensures it stays clickable */
+  z-index: 10;
+  background-color: rgba(0,0,0,0.6); /* Added background for visibility */
+  padding: 5px 10px;
+  border-radius: 20px;
 }
 
 .switch {
@@ -132,29 +146,29 @@ input:checked + .slider:before {
 /* --- MOBILE RESPONSIVENESS --- */
 @media (max-width: 768px) {
   body {
-    justify-content: flex-start; /* Start from top on mobile */
+    justify-content: flex-start;
     padding-top: 20px;
   }
 
   .toggle-wrapper {
-    position: relative; /* Remove absolute positioning */
+    position: relative;
     top: auto;
     left: auto;
-    margin-bottom: 20px; /* Push the time down */
-    width: 100%;
-    justify-content: center; /* Center the toggle */
+    margin-bottom: 20px;
+    width: fit-content; /* Changed to fit-content so the background pill wraps nicely */
+    align-self: center; /* Centers the wrapper in the flex column */
   }
 
   .datetime-line {
-    font-size: 2.2rem; /* Smaller font for time */
+    font-size: 2.2rem;
     margin-bottom: 2rem;
   }
 
   .icon-grid {
-    gap: 0.5rem; /* Tighter spacing for icons */
+    gap: 0.5rem;
   }
 
   .icon {
-    width: 90px; /* Slightly smaller icons */
+    width: 90px;
   }
 }
