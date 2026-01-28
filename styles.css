@@ -1,3 +1,4 @@
+/* ... Keep your existing font-face ... */
 @font-face {
   font-family: 'swedenSans';
   src: url('fonts/SwedenSansRegular.ttf') format('truetype');
@@ -9,9 +10,11 @@ body {
   font-family: 'swedenSans', sans-serif;
   color: #c9c9c9;
   display: flex;
+  flex-direction: column; /* Changed to column to stack elements nicely */
   justify-content: center;
   align-items: center;
   min-height: 100vh;
+  position: relative;
 }
 
 .container {
@@ -25,20 +28,18 @@ body {
   color: #c9c9c9;
 }
 
-/* Updated Grid Styles */
 .icon-grid {
-  display: flex;            /* Enables flexible layout */
-  flex-wrap: wrap;          /* Allows items to wrap to the next line */
-  justify-content: center;  /* Centers all items, including the last row */
-  gap: 1rem;                /* Spacing between items */
-  
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 1rem;
   width: 90%; 
-  max-width: 1000px;        /* Prevents the grid from getting too wide on large screens */
+  max-width: 1000px;
   margin: 0 auto 1.6rem auto;
 }
 
 .icon {
-  width: 110px;             /* Fixed width ensures consistent alignment */
+  width: 110px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -64,4 +65,96 @@ body {
 
 .icon span {
   font-size: 1rem;
+}
+
+/* --- TOGGLE STYLES --- */
+.toggle-wrapper {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.9rem;
+  color: #888;
+  z-index: 10; /* Ensures it stays clickable */
+}
+
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 40px;
+  height: 22px;
+}
+
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #333;
+  transition: .4s;
+  border-radius: 22px;
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 16px;
+  width: 16px;
+  left: 3px;
+  bottom: 3px;
+  background-color: white;
+  transition: .4s;
+  border-radius: 50%;
+}
+
+input:checked + .slider {
+  background-color: #00803c;
+}
+
+input:checked + .slider:before {
+  transform: translateX(18px);
+}
+
+.toggle-text {
+  font-weight: bold;
+}
+
+/* --- MOBILE RESPONSIVENESS --- */
+@media (max-width: 768px) {
+  body {
+    justify-content: flex-start; /* Start from top on mobile */
+    padding-top: 20px;
+  }
+
+  .toggle-wrapper {
+    position: relative; /* Remove absolute positioning */
+    top: auto;
+    left: auto;
+    margin-bottom: 20px; /* Push the time down */
+    width: 100%;
+    justify-content: center; /* Center the toggle */
+  }
+
+  .datetime-line {
+    font-size: 2.2rem; /* Smaller font for time */
+    margin-bottom: 2rem;
+  }
+
+  .icon-grid {
+    gap: 0.5rem; /* Tighter spacing for icons */
+  }
+
+  .icon {
+    width: 90px; /* Slightly smaller icons */
+  }
 }

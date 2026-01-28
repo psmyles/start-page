@@ -3,12 +3,21 @@
   <head>
       <meta charset="UTF-8" />
       <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-      <title>New Tab</title>
+      <title>Startpage</title>
       <link rel="stylesheet" href="styles.css"/>
   </head>
 <body>
-  <div class="container">
+  
+  <div class="toggle-wrapper">
+    <span class="toggle-text">Local</span>
+    <label class="switch">
+      <input type="checkbox" id="url-toggle">
+      <span class="slider"></span>
+    </label>
+    <span class="toggle-text">Internet</span>
+  </div>
 
+  <div class="container">
     <div class="datetime-line">
       <span id="time" class="time"></span>
       <span> • </span>
@@ -16,119 +25,137 @@
     </div>
 
     <div class="icon-grid">
-      <a href="https://feedly.com/i/latest" class="icon">
+      <a href="#" data-local="https://feedly.com/i/latest" data-internet="https://feedly.com/i/latest" class="icon">
         <img src="icon/feedly.png" alt="Feedly" />
         <span>Feedly</span>
       </a>
-      <a href="https://reddit.com/" class="icon">
+      <a href="#" data-local="https://reddit.com/" data-internet="https://reddit.com/" class="icon">
         <img src="icon/reddit.png" alt="Reddit" />
         <span>Reddit</span>
       </a>
-      <a href="https://news.ycombinator.com/" class="icon">
+      <a href="#" data-local="https://news.ycombinator.com/" data-internet="https://news.ycombinator.com/" class="icon">
         <img src="icon/hackernews.png" alt="Hacker News" />
         <span>Hacker News</span>
       </a>
-      <a href="https://gamedev.city" class="icon">
+      <a href="#" data-local="https://gamedev.city" data-internet="https://gamedev.city" class="icon">
         <img src="icon/gamedev.png" alt="" />
         <span>Gamedev.city</span>
       </a>
-      <a href="https://youtube.com" class="icon">
+      <a href="#" data-local="https://youtube.com" data-internet="https://youtube.com" class="icon">
         <img src="icon/youtube.png" alt="Youtube" />
         <span>Youtube</span>
       </a>
-      <a href="https://www.twitch.tv/directory/category/dota-2?sort=VIEWER_COUNT&tl=English" class="icon">
+      <a href="#" data-local="https://www.twitch.tv/directory/category/dota-2?sort=VIEWER_COUNT&tl=English" data-internet="https://www.twitch.tv/directory/category/dota-2?sort=VIEWER_COUNT&tl=English" class="icon">
         <img src="icon/twitch.png" alt="Twitch" />
         <span>Twitch</span>
       </a>
-      <a href="https://www.netflix.com/browse" class="icon">
+      <a href="#" data-local="https://www.netflix.com/browse" data-internet="https://www.netflix.com/browse" class="icon">
         <img src="icon/netflix.png" alt="netflix" />
         <span>Netflix</span>
       </a>
-      <a href="https://liquipedia.net/dota2/Main_Page" class="icon">
-        <img src="icon/liquipedia.png" alt="Liquipedia" />
+      <a href="#" data-local="https://liquipedia.net/dota2/Main_Page" data-internet="https://liquipedia.net/dota2/Main_Page" class="icon">
+        <img src="icon/Liquipedia.png" alt="Liquipedia" />
         <span>Liquipedia</span>
       </a>
-      <a href="https://www.ourgroceries.com/your-lists" class="icon">
+      <a href="#" data-local="https://www.ourgroceries.com/your-lists" data-internet="https://www.ourgroceries.com/your-lists" class="icon">
         <img src="icon/ourgroceries.png" alt="ourgroceries" />
         <span>OurGroceries</span>
       </a>
-      <a href="https://swiggy.com" class="icon">
+      <a href="#" data-local="https://swiggy.com" data-internet="https://swiggy.com" class="icon">
         <img src="icon/swiggy.png" alt="Swiggy" />
         <span>Swiggy</span>
       </a>
-      <a href="https://blinkit.com/" class="icon">
+      <a href="#" data-local="https://blinkit.com/" data-internet="https://blinkit.com/" class="icon">
         <img src="icon/blinkit.png" alt="blinkit" />
         <span>Blinkit</span>
       </a>
-      <a href="https://amazon.in" class="icon">
+      <a href="#" data-local="https://amazon.in" data-internet="https://amazon.in" class="icon">
         <img src="icon/amazon.png" alt="Amazon" />
         <span>Amazon</span>
       </a>
-      <a href="https://employ.remote.com/dashboard" class="icon">
+      <a href="#" data-local="https://employ.remote.com/dashboard" data-internet="https://employ.remote.com/dashboard" class="icon">
         <img src="icon/remote.png" alt="remote" />
         <span>Remote</span>
       </a>
-      <a href="https://view.money/" class="icon">
+      <a href="#" data-local="https://view.money/" data-internet="https://view.money/" class="icon">
         <img src="icon/fold.png" alt="fold" />
         <span>Fold</span>
       </a>
-      <a href="https://keep.google.com/u/0/" class="icon">
+      <a href="#" data-local="https://keep.google.com/u/0/" data-internet="https://keep.google.com/u/0/" class="icon">
         <img src="icon/keep.png" alt="keep" />
         <span>Keep</span>
       </a>
-      <a href="https://www.icloud.com/reminders/" class="icon">
+      <a href="#" data-local="https://www.icloud.com/reminders/" data-internet="https://www.icloud.com/reminders/" class="icon">
         <img src="icon/reminders.png" alt="reminders" />
         <span>Reminders</span>
       </a>
-      <a href="https://www.udemy.com/home/my-courses/learning/" class="icon">
+      <a href="#" data-local="https://www.udemy.com/home/my-courses/learning/" data-internet="https://www.udemy.com/home/my-courses/learning/" class="icon">
         <img src="icon/udemy.png" alt="udemy" />
         <span>Udemy</span>
       </a>
-      <a href="https://gemini.google.com/app" class="icon">
+      <a href="#" data-local="https://gemini.google.com/app" data-internet="https://gemini.google.com/app" class="icon">
         <img src="icon/gemini.png" alt="gemini" />
         <span>Gemini</span>
       </a>
-      <a href="https://github.com/psmyles" class="icon">
+      <a href="#" data-local="https://github.com/psmyles" data-internet="https://github.com/psmyles" class="icon">
         <img src="icon/github.png" alt="github" />
         <span>Github</span>
       </a>
-      <a href="https://web.ente.io/gallery" class="icon">
+      <a href="#" data-local="https://web.ente.io/gallery" data-internet="https://web.ente.io/gallery" class="icon">
         <img src="icon/ente.png" alt="ente" />
         <span>Ente Photos</span>
       </a>
-      <a href="https://photos.google.com/" class="icon">
+      <a href="#" data-local="https://photos.google.com/" data-internet="https://photos.google.com/" class="icon">
         <img src="icon/google-photos.png" alt="google-photos" />
         <span>Google Photos</span>
       </a>
-      <a href="https://www.google.com/maps" class="icon">
+      <a href="#" data-local="https://www.google.com/maps" data-internet="https://www.google.com/maps" class="icon">
         <img src="icon/maps.png" alt="maps" />
         <span>Google Maps</span>
       </a>
-      <a href="https://controld.com/dashboard/statistics" class="icon">
+      <a href="#" data-local="https://controld.com/dashboard/statistics" data-internet="https://controld.com/dashboard/statistics" class="icon">
         <img src="icon/controld.png" alt="controld" />
         <span>Control D</span>
       </a>
-      <a href="https://login.tailscale.com/admin/machines" class="icon">
+      <a href="#" data-local="https://login.tailscale.com/admin/machines" data-internet="https://login.tailscale.com/admin/machines" class="icon">
         <img src="icon/tailscale.png" alt="tailscale" />
         <span>Tailscale</span>
       </a>
-      <a href="https://192.168.0.1/network/default/dashboard" class="icon">
+
+      <a href="#" 
+         data-local="https://192.168.0.1/network/default/dashboard" 
+         data-internet="https://unifi.ui.com/" 
+         class="icon">
         <img src="icon/unifi-network.png" alt="Unifi" />
         <span>Unifi Network</span>
       </a>
-      <a href="http://192.168.0.198:8123/lovelace" class="icon">
+
+      <a href="#" 
+         data-local="http://192.168.0.198:8123/lovelace" 
+         data-internet="https://fofny5no1jc46is84q9o51qsp8q2f5y4.ui.nabu.casa" 
+         class="icon">
         <img src="icon/home-assistant.png" alt="Home Assistant" />
         <span>Home Assistant</span>
       </a>
-      <a href="https://192.168.0.226:8006" class="icon">
+
+      <a href="#" 
+         data-local="https://192.168.0.226:8006" 
+         data-internet="https://proxmox.pizzly-ghost.ts.net/"
+         class="icon">
         <img src="icon/proxmox.png" alt="proxmox" />
         <span>Proxmox</span>
       </a>
-      <a href="https://paperless-ngx.pizzly-ghost.ts.net/dashboard" class="icon">
+
+      <a href="#" 
+         data-local="http://192.168.0.174:8000/dashboard" 
+         data-internet="https://paperless-ngx.pizzly-ghost.ts.net/dashboard" 
+         class="icon">
         <img src="icon/paperless-ngx.png" alt="paperless-ngx" />
         <span>Paperless NGX</span>
       </a>
-    </div> </div>
+
+    </div> 
+  </div>
   <script src="script.js"></script>
 </body>
 </html>
