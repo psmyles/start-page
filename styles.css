@@ -6,14 +6,6 @@
 
 body {
   margin: 0;
-  
-  /* --- NEW BACKGROUND --- */
-  background-color: #000000;
-  opacity: 1;
-  background-image: linear-gradient(#101010 1.2px, transparent 1.2px), linear-gradient(to right, #101010 1.2px, #000000 1.22px);
-  background-size: 32px 32px;
-  /* ---------------------- */
-
   font-family: 'swedenSans', sans-serif;
   color: #c9c9c9;
   display: flex;
