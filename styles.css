@@ -6,6 +6,7 @@
 
 body {
   margin: 0;
+  background-color: #000000;
   font-family: 'swedenSans', sans-serif;
   color: #c9c9c9;
   display: flex;
