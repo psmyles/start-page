@@ -1,7 +1,7 @@
 {
   "manifest_version": 2,
   "name": "My Startpage",
-  "version": "3.1",
+  "version": "3.2",
   "description": "Loads my personal startpage from GitHub.",
   "chrome_url_overrides": {
     "newtab": "local-index.html"
@@ -12,8 +12,8 @@
   "content_security_policy": "script-src 'self' https://psmyles.github.io; object-src 'self'",
   "browser_specific_settings": {
     "gecko": {
-      "id": "startpage@psmyles",
-      "strict_min_version": "42.0"
+      "id": "{67788975-7308-472b-bc17-b99e4330ed8f}",
+      "strict_min_version": "60.0"
     }
   }
 }

@@ -1,70 +1,74 @@
-const CACHE_NAME = 'startpage-v1';
+const CACHE_NAME = 'startpage-extension-v1';
+const GITHUB_BASE = 'https://psmyles.github.io/start-page/'; // Ensure this matches your repo URL exactly
+
 const ASSETS_TO_CACHE = [
-  './',
-  './index.html',
-  './styles.css',
-  './script.js',
-  './fonts/SwedenSansRegular.ttf',
+  // We must cache the absolute URLs from GitHub
+  GITHUB_BASE + 'index.html',
+  GITHUB_BASE + 'styles.css',
+  GITHUB_BASE + 'script.js',
+  GITHUB_BASE + 'fonts/SwedenSansRegular.ttf',
   
-  // Add all your icons here to ensure they work offline
-  './icon/feedly.png',
-  './icon/reddit.png',
-  './icon/hackernews.png',
-  './icon/gamedev.png',
-  './icon/youtube.png',
-  './icon/twitch.png',
-  './icon/netflix.png',
-  './icon/liquipedia.png',
-  './icon/ourgroceries.png',
-  './icon/swiggy.png',
-  './icon/blinkit.png',
-  './icon/amazon.png',
-  './icon/remote.png',
-  './icon/fold.png',
-  './icon/keep.png',
-  './icon/reminders.png',
-  './icon/udemy.png',
-  './icon/gemini.png',
-  './icon/github.png',
-  './icon/ente.png',
-  './icon/google-photos.png',
-  './icon/maps.png',
-  './icon/controld.png',
-  './icon/tailscale.png',
-  './icon/unifi-network.png',
-  './icon/home-assistant.png',
-  './icon/proxmox.png',
-  './icon/paperless-ngx.png'
+  // Icons
+  GITHUB_BASE + 'icons/feedly.png',
+  GITHUB_BASE + 'icons/reddit.png',
+  GITHUB_BASE + 'icons/hackernews.png',
+  GITHUB_BASE + 'icons/gamedev.png',
+  GITHUB_BASE + 'icons/youtube.png',
+  GITHUB_BASE + 'icons/twitch.png',
+  GITHUB_BASE + 'icons/netflix.png',
+  GITHUB_BASE + 'icons/Liquipedia.png',
+  GITHUB_BASE + 'icons/ourgroceries.png',
+  GITHUB_BASE + 'icons/swiggy.png',
+  GITHUB_BASE + 'icons/blinkit.png',
+  GITHUB_BASE + 'icons/amazon.png',
+  GITHUB_BASE + 'icons/remote.png',
+  GITHUB_BASE + 'icons/fold.png',
+  GITHUB_BASE + 'icons/keep.png',
+  GITHUB_BASE + 'icons/reminders.png',
+  GITHUB_BASE + 'icons/udemy.png',
+  GITHUB_BASE + 'icons/gemini.png',
+  GITHUB_BASE + 'icons/github.png',
+  GITHUB_BASE + 'icons/ente.png',
+  GITHUB_BASE + 'icons/google-photos.png',
+  GITHUB_BASE + 'icons/maps.png',
+  GITHUB_BASE + 'icons/controld.png',
+  GITHUB_BASE + 'icons/tailscale.png',
+  GITHUB_BASE + 'icons/unifi-network.png',
+  GITHUB_BASE + 'icons/home-assistant.png',
+  GITHUB_BASE + 'icons/proxmox.png',
+  GITHUB_BASE + 'icons/paperless-ngx.png'
 ];
 
-// Install Event: Cache all files
 self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
-      console.log('Opened cache');
+      console.log('Extension SW: Caching GitHub assets...');
       return cache.addAll(ASSETS_TO_CACHE);
     })
   );
 });
 
-// Fetch Event: Serve from Cache First
 self.addEventListener('fetch', (event) => {
-  event.respondWith(
-    caches.match(event.request).then((response) => {
-      // Return cache if found, otherwise fetch from network
-      return response || fetch(event.request);
-    })
-  );
+  // Only intervene if the request is for our GitHub assets
+  if (event.request.url.startsWith(GITHUB_BASE)) {
+    event.respondWith(
+      caches.match(event.request).then((response) => {
+        return response || fetch(event.request).catch(() => {
+             // Optional: Return a fallback if both cache and network fail
+             return new Response("Offline and not cached");
+        });
+      })
+    );
+  }
 });
 
-// Activate Event: Clean up old caches if you change CACHE_NAME
+// Clean up old caches
 self.addEventListener('activate', (event) => {
-  const cacheWhitelist = [CACHE_NAME];
   event.waitUntil(
     caches.keys().then((cacheNames) => {
       return Promise.all(
         cacheNames.map((cacheName) => {
-          if (cacheWhitelist.indexOf(cacheName) === -1) {
+          if (cacheName !== CACHE_NAME) {
             return caches.delete(cacheName);
           }
         })
