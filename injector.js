@@ -2,7 +2,7 @@
 const GITHUB_BASE_URL = 'https://psmyles.github.io/start-page/'; 
 const CACHE_KEY = 'startpage_html_cache_v1';
 
-// 1. Helper to fix relative URLs and setup the "No Flash" logic
+// 1. Helper to fix relative URLs and setup the "No Flash" styles
 function processHTML(htmlContent) {
     const parser = new DOMParser();
     const doc = parser.parseFromString(htmlContent, 'text/html');
@@ -20,19 +20,12 @@ function processHTML(htmlContent) {
     doc.querySelectorAll('script[src]').forEach(el => el.src = fixUrl(el.getAttribute('src')));
     doc.querySelectorAll('img[src]').forEach(el => el.src = fixUrl(el.getAttribute('src')));
 
-    // B. "No Flash" Logic
-    // 1. Add a 'loading' class to the body by default
+    // B. "No Flash" Logic - Step 1: Add the class
     doc.body.classList.add('is-loading');
 
-    // 2. Find the main stylesheet and tell it to remove that class when done
-    const cssLink = doc.querySelector('link[rel="stylesheet"]');
-    if (cssLink) {
-        // This triggers the moment the CSS is ready
-        cssLink.setAttribute('onload', "document.body.classList.remove('is-loading')");
-        cssLink.setAttribute('onerror', "document.body.classList.remove('is-loading')"); // Fallback
-    }
+    // (Note: We removed the inline 'onload' attribute here to fix the CSP error)
 
-    // C. Inject Critical CSS (The "Invisible" Rules)
+    // C. Inject Critical CSS
     const criticalStyle = doc.createElement('style');
     criticalStyle.textContent = `
         /* Always keep the background black */
@@ -44,11 +37,11 @@ function processHTML(htmlContent) {
             visibility: hidden !important; 
         }
 
-        /* Optional: Smooth fade-in once loaded */
+        /* Fade in when ready */
         body { 
             opacity: 1; 
             transition: opacity 0.3s ease-in; 
-            background-color: #000000; /* Ensure body matches html */
+            background-color: #000000; 
         }
     `;
     doc.head.appendChild(criticalStyle);
@@ -56,11 +49,11 @@ function processHTML(htmlContent) {
     return doc.documentElement.innerHTML;
 }
 
-// 2. Function to Inject HTML into the page
+// 2. Function to Inject HTML and attach listeners safely
 function injectContent(innerHtmlContent) {
     document.documentElement.innerHTML = innerHtmlContent;
 
-    // Re-activate scripts
+    // --- A. Re-activate scripts ---
     const scripts = document.querySelectorAll('script');
     scripts.forEach(oldScript => {
         const newScript = document.createElement('script');
@@ -71,6 +64,25 @@ function injectContent(innerHtmlContent) {
         }
         document.body.appendChild(newScript);
     });
+
+    // --- B. "No Flash" Logic - Step 2: Safe Event Listener ---
+    // Instead of using onload="..." in HTML, we attach it here in JS
+    const removeLoading = () => {
+        document.body.classList.remove('is-loading');
+    };
+
+    const cssLink = document.querySelector('link[rel="stylesheet"]');
+    if (cssLink) {
+        // This is safe because it's inside the extension's trusted JS file
+        cssLink.addEventListener('load', removeLoading);
+        cssLink.addEventListener('error', removeLoading); // Fallback if CSS fails
+        
+        // Safety Timeout: Force show content after 1s if network hangs
+        setTimeout(removeLoading, 1000);
+    } else {
+        // If no CSS link found, show immediately
+        removeLoading();
+    }
 }
 
 async function loadStartpage() {

@@ -1,7 +1,7 @@
 {
   "manifest_version": 2,
   "name": "My Startpage",
-  "version": "3.5",
+  "version": "3.7",
   "description": "Loads my personal startpage from GitHub.",
   "chrome_url_overrides": {
     "newtab": "local-index.html"
