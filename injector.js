@@ -20,6 +20,13 @@ function processHTML(htmlContent) {
     doc.querySelectorAll('script[src]').forEach(el => el.src = fixUrl(el.getAttribute('src')));
     doc.querySelectorAll('img[src]').forEach(el => el.src = fixUrl(el.getAttribute('src')));
 
+    // --- NEW FIX: Inject Critical CSS ---
+    // This forces the background to remain black even while the external CSS is loading
+    const criticalStyle = doc.createElement('style');
+    criticalStyle.textContent = "html, body { background-color: #000000 !important; color: #c9c9c9; }";
+    doc.head.appendChild(criticalStyle);
+    // ------------------------------------
+
     return doc.documentElement.innerHTML;
 }
 
@@ -73,7 +80,7 @@ async function loadStartpage() {
         console.error('Network fetch failed:', error);
         if (!cachedHTML) {
             document.body.innerHTML = `
-                <div style="color:#666; font-family:sans-serif; text-align:center; margin-top:20%;">
+                <div style="background:#000; color:#666; font-family:sans-serif; text-align:center; margin-top:20%; height:100vh;">
                     <h1>Offline</h1>
                     <p>Could not load startpage and no cache available.</p>
                 </div>
