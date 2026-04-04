@@ -25,9 +25,7 @@ body {
 .datetime-line {
   font-size: 3.6rem;
   margin-bottom: 4rem;
-  color: #c9c9c9;
-  /* Optional: Add a text shadow to make time pop against the grid */
-  text-shadow: 0 2px 4px rgba(0,0,0,0.8);
+  color: #ffffff;
 }
 
 .icon-grid {
