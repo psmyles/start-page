@@ -3,22 +3,26 @@
     Packages the Firefox extension into a zip ready for upload to addons.mozilla.org.
 
 .DESCRIPTION
-    This repo contains two separate things:
+    Repo layout:
 
-      1. The extension shell  - manifest.json, local-index.html, injector.js
-                                Packaged here and uploaded to AMO. Changing any
-                                of these requires a version bump + re-upload.
+      docs/       Served by GitHub Pages (Settings > Pages > main, /docs folder).
+                  docs/ is the site root, so docs/index.html is
+                  https://psmyles.github.io/start-page/index.html.
+                  Edit index.html or icon/ and just push - the installed
+                  extension picks it up on the next new tab, no re-release.
 
-      2. The page content     - index.html, styles.css, script.js, icon/, fonts/
-                                Served from GitHub Pages. Changing these needs
-                                only a git push; the extension picks them up.
+      extension/  The installable add-on shell. Changing anything in here means
+                  a version bump and a fresh upload to AMO.
 
-    Only group 1 goes into the zip. This script builds that zip with manifest.json
-    at the archive root, which is what AMO requires.
+    Manifest V3 forbids remote code, so script.js, styles.css and the font have
+    to be bundled into the package as well as being served from docs/. There is
+    still only ONE copy of each in the repo - this script reaches into docs/ for
+    them at build time. The trade-off: editing those three does require a new
+    version upload, unlike index.html and the tile icons.
 
 .PARAMETER Bump
     Increment the last segment of the manifest version before packaging
-    (e.g. 3.8 -> 3.9) and write it back to manifest.json.
+    (e.g. 4.0 -> 4.1) and write it back to extension/manifest.json.
 
 .PARAMETER OutputDir
     Where to write the zip. Defaults to .\dist (gitignored).
@@ -29,7 +33,7 @@
 
 .EXAMPLE
     .\build-extension.ps1 -Bump
-    Bump 3.8 -> 3.9 in manifest.json, then package.
+    Bump 4.0 -> 4.1 in the manifest, then package.
 #>
 [CmdletBinding()]
 param(
@@ -40,24 +44,21 @@ param(
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
 
-# --- Files that make up the installable extension -------------------------
-# Manifest V3 bans remote code, so all executable and presentational assets ship
-# inside the package. index.html and icon/ stay on GitHub Pages - those are the
-# ones that change often and need no re-release.
-#
-# Note styles.css / script.js / fonts are listed here AND served by Pages: one
-# copy in the repo, packaged for the extension and served for standalone preview.
-# Changing them does require a new version upload.
-$ExtensionFiles = @(
-    'manifest.json'
-    'local-index.html'
-    'injector.js'
-    'script.js'
-    'styles.css'
-    'fonts/SwedenSansRegular.ttf'
-)
+# --- What goes in the package ---------------------------------------------
+# source path in the repo  ->  path inside the zip
+# Entries must land at the archive root; Firefox rejects a nested manifest.json.
+$PackageMap = [ordered]@{
+    'extension/manifest.json'          = 'manifest.json'
+    'extension/local-index.html'       = 'local-index.html'
+    'extension/injector.js'            = 'injector.js'
+    'docs/script.js'                   = 'script.js'
+    'docs/styles.css'                  = 'styles.css'
+    'docs/fonts/SwedenSansRegular.ttf' = 'fonts/SwedenSansRegular.ttf'
+}
 
-$manifestPath = Join-Path $PSScriptRoot 'manifest.json'
+$manifestSource = 'extension/manifest.json'
+$manifestPath   = Join-Path $PSScriptRoot $manifestSource
+
 if (-not (Test-Path -LiteralPath $manifestPath)) {
     throw "manifest.json not found at $manifestPath"
 }
@@ -69,11 +70,11 @@ try {
     $manifest = $rawManifest | ConvertFrom-Json
 }
 catch {
-    throw "manifest.json is not valid JSON: $($_.Exception.Message)"
+    throw "extension/manifest.json is not valid JSON: $($_.Exception.Message)"
 }
 
 if ($rawManifest -notmatch '"version"\s*:\s*"([^"]+)"') {
-    throw 'Could not find a "version" field in manifest.json'
+    throw 'Could not find a "version" field in extension/manifest.json'
 }
 $version = $Matches[1]
 
@@ -98,25 +99,23 @@ if ($Bump) {
 }
 
 # --- Pull in any icons the manifest declares ------------------------------
-# Safe under StrictMode: test for the property before touching it.
+# Manifest icon paths are relative to the extension folder, and keep that same
+# path inside the package. Safe under StrictMode: test before touching.
 if ($manifest.PSObject.Properties['icons']) {
     foreach ($iconProp in $manifest.icons.PSObject.Properties) {
         $iconPath = [string]$iconProp.Value
-        if ($iconPath -and $ExtensionFiles -notcontains $iconPath) {
-            $ExtensionFiles += $iconPath
+        if ($iconPath -and -not $PackageMap.Contains("extension/$iconPath")) {
+            $PackageMap["extension/$iconPath"] = $iconPath
         }
     }
 }
 
-# --- Verify every file exists before we build anything --------------------
-$missing = @()
-foreach ($relative in $ExtensionFiles) {
-    if (-not (Test-Path -LiteralPath (Join-Path $PSScriptRoot $relative))) {
-        $missing += $relative
-    }
-}
+# --- Verify every source file exists before building anything -------------
+$missing = @($PackageMap.Keys | Where-Object {
+    -not (Test-Path -LiteralPath (Join-Path $PSScriptRoot $_))
+})
 if ($missing.Count -gt 0) {
-    throw "Missing extension file(s): $($missing -join ', ')"
+    throw "Missing source file(s): $($missing -join ', ')"
 }
 
 # --- Work out the output path ---------------------------------------------
@@ -134,22 +133,18 @@ if (Test-Path -LiteralPath $zipPath) {
 }
 
 # --- Build the zip --------------------------------------------------------
-# Built entry-by-entry rather than with Compress-Archive so that entry names are
-# guaranteed to use forward slashes and sit at the archive root. Firefox rejects
-# archives where manifest.json is nested inside a folder.
+# Built entry-by-entry rather than with Compress-Archive so entry names are
+# controlled exactly: forward slashes, and rooted at the archive top level.
 Add-Type -AssemblyName System.IO.Compression
 Add-Type -AssemblyName System.IO.Compression.FileSystem
 
 $archive = [System.IO.Compression.ZipFile]::Open($zipPath, [System.IO.Compression.ZipArchiveMode]::Create)
 try {
-    foreach ($relative in $ExtensionFiles) {
-        $fullPath  = Join-Path $PSScriptRoot $relative
-        $entryName = $relative -replace '\\', '/'
-
+    foreach ($source in $PackageMap.Keys) {
         [System.IO.Compression.ZipFileExtensions]::CreateEntryFromFile(
             $archive,
-            $fullPath,
-            $entryName,
+            (Join-Path $PSScriptRoot $source),
+            ($PackageMap[$source] -replace '\\', '/'),
             [System.IO.Compression.CompressionLevel]::Optimal
         ) | Out-Null
     }
@@ -162,11 +157,12 @@ finally {
 Write-Host ''
 Write-Host "Packaged $($manifest.name) v$version" -ForegroundColor Green
 
-$ExtensionFiles |
+$PackageMap.Keys |
     ForEach-Object {
         [pscustomobject]@{
-            File  = $_
-            Bytes = (Get-Item -LiteralPath (Join-Path $PSScriptRoot $_)).Length
+            Source      = $_
+            InPackage   = $PackageMap[$_]
+            Bytes       = (Get-Item -LiteralPath (Join-Path $PSScriptRoot $_)).Length
         }
     } |
     Format-Table -AutoSize |
