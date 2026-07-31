@@ -1,125 +1,96 @@
-// CHANGE THIS if your repo is named differently
-const GITHUB_BASE_URL = 'https://psmyles.github.io/start-page/'; 
-const CACHE_KEY = 'startpage_html_cache_v1';
+// Renders the startpage inside the extension's new-tab override.
+//
+// Manifest V3 forbids executing remote code, so the document fetched from
+// GitHub Pages is treated as DATA ONLY: every <script> is stripped and the page
+// is driven by script.js, which ships inside the extension. Stylesheet and font
+// are bundled too. The only things still coming off the network are the markup
+// itself and the tile images - which is exactly the part that changes often.
 
-// 1. Helper to fix relative URLs and setup the "No Flash" styles
-function processHTML(htmlContent) {
-    const parser = new DOMParser();
-    const doc = parser.parseFromString(htmlContent, 'text/html');
+const PAGES_BASE_URL = 'https://psmyles.github.io/start-page/';
+const CACHE_KEY = 'startpage_markup_v2';
 
-    const fixUrl = (url) => {
-        if (!url) return url;
-        if (url.startsWith('http') || url.startsWith('//') || url.startsWith('data:')) {
-            return url;
-        }
-        return GITHUB_BASE_URL + url;
-    };
+// Turn a fetched document into the body markup we are willing to render.
+function extractBody(html) {
+  const doc = new DOMParser().parseFromString(html, 'text/html');
 
-    // A. Fix all relative links
-    doc.querySelectorAll('link[href]').forEach(el => el.href = fixUrl(el.getAttribute('href')));
-    doc.querySelectorAll('script[src]').forEach(el => el.src = fixUrl(el.getAttribute('src')));
-    doc.querySelectorAll('img[src]').forEach(el => el.src = fixUrl(el.getAttribute('src')));
+  // No remote code, ever. script.js is supplied by the extension.
+  doc.querySelectorAll('script').forEach(el => el.remove());
 
-    // B. "No Flash" Logic - Step 1: Add the class
-    doc.body.classList.add('is-loading');
+  // styles.css is bundled; loading the Pages copy as well would only add a
+  // network round-trip and a flash of unstyled content.
+  doc.querySelectorAll('link[rel="stylesheet"]').forEach(el => el.remove());
 
-    // (Note: We removed the inline 'onload' attribute here to fix the CSP error)
+  // Tile images do still live on Pages, so relative paths need resolving.
+  doc.querySelectorAll('img[src]').forEach(el => {
+    const src = el.getAttribute('src');
+    if (src && !/^(?:https?:)?\/\//.test(src) && !src.startsWith('data:')) {
+      el.setAttribute('src', PAGES_BASE_URL + src.replace(/^\.?\//, ''));
+    }
+  });
 
-    // C. Inject Critical CSS
-    const criticalStyle = doc.createElement('style');
-    criticalStyle.textContent = `
-        /* Always keep the background black */
-        html { background-color: #000000 !important; }
-        
-        /* Hide the body content completely while loading */
-        body.is-loading { 
-            opacity: 0 !important; 
-            visibility: hidden !important; 
-        }
-
-        /* Fade in when ready */
-        body { 
-            opacity: 1; 
-            transition: opacity 0.3s ease-in; 
-            background-color: #000000; 
-        }
-    `;
-    doc.head.appendChild(criticalStyle);
-
-    return doc.documentElement.innerHTML;
+  return doc.body.innerHTML.trim();
 }
 
-// 2. Function to Inject HTML and attach listeners safely
-function injectContent(innerHtmlContent) {
-    document.documentElement.innerHTML = innerHtmlContent;
+function render(markup) {
+  // Built through DOMParser and node adoption rather than an innerHTML
+  // assignment: parsed documents are inert, so nothing in the fetched markup can
+  // run, and AMO review does not have to take that on trust.
+  const doc = new DOMParser().parseFromString(markup, 'text/html');
+  document.body.replaceChildren(...doc.body.childNodes);
 
-    // --- A. Re-activate scripts ---
-    const scripts = document.querySelectorAll('script');
-    scripts.forEach(oldScript => {
-        const newScript = document.createElement('script');
-        if (oldScript.src) {
-            newScript.src = oldScript.src;
-        } else {
-            newScript.textContent = oldScript.textContent;
-        }
-        document.body.appendChild(newScript);
-    });
+  // Defined in script.js. Safe to call repeatedly - see initStartpage().
+  initStartpage();
+}
 
-    // --- B. "No Flash" Logic - Step 2: Safe Event Listener ---
-    // Instead of using onload="..." in HTML, we attach it here in JS
-    const removeLoading = () => {
-        document.body.classList.remove('is-loading');
-    };
+function renderOfflineNotice() {
+  const wrapper = document.createElement('div');
+  wrapper.className = 'offline';
 
-    const cssLink = document.querySelector('link[rel="stylesheet"]');
-    if (cssLink) {
-        // This is safe because it's inside the extension's trusted JS file
-        cssLink.addEventListener('load', removeLoading);
-        cssLink.addEventListener('error', removeLoading); // Fallback if CSS fails
-        
-        // Safety Timeout: Force show content after 1s if network hangs
-        setTimeout(removeLoading, 1000);
-    } else {
-        // If no CSS link found, show immediately
-        removeLoading();
-    }
+  const heading = document.createElement('h1');
+  heading.textContent = 'Offline';
+
+  const detail = document.createElement('p');
+  detail.textContent = 'Could not load startpage.';
+
+  wrapper.append(heading, detail);
+  document.body.replaceChildren(wrapper);
+  document.body.classList.add('ready');
 }
 
 async function loadStartpage() {
-    // --- PHASE 1: CACHE FIRST ---
-    const cachedHTML = localStorage.getItem(CACHE_KEY);
-    if (cachedHTML) {
-        console.log("Loading from Local Storage Cache...");
-        injectContent(cachedHTML);
+  // Phase 1: paint instantly from the last known good copy.
+  const cached = localStorage.getItem(CACHE_KEY);
+  if (cached) {
+    render(cached);
+  }
+
+  // Phase 2: check GitHub Pages for newer markup.
+  try {
+    // 'no-cache' revalidates instead of sitting on the Cache-Control: max-age=600
+    // that Pages sends, so an edit shows up on the next new tab rather than up
+    // to ten minutes later.
+    const response = await fetch(PAGES_BASE_URL + 'index.html', { cache: 'no-cache' });
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}`);
     }
 
-    // --- PHASE 2: NETWORK UPDATE ---
-    try {
-        console.log("Checking for updates from GitHub...");
-        const response = await fetch(GITHUB_BASE_URL + 'index.html');
-        if (!response.ok) throw new Error('Network response was not ok');
-        
-        const rawText = await response.text();
-        const processedHTML = processHTML(rawText);
-
-        localStorage.setItem(CACHE_KEY, processedHTML);
-        console.log("Cache updated successfully.");
-
-        if (!cachedHTML) {
-            injectContent(processedHTML);
-        }
-
-    } catch (error) {
-        console.error('Network fetch failed:', error);
-        if (!cachedHTML) {
-            document.body.innerHTML = `
-                <div style="background:#000; color:#666; font-family:sans-serif; text-align:center; padding-top:20vh; height:100vh;">
-                    <h1>Offline</h1>
-                    <p>Could not load startpage.</p>
-                </div>
-            `;
-        }
+    const markup = extractBody(await response.text());
+    if (!markup) {
+      throw new Error('Fetched page had an empty body');
     }
+
+    if (markup !== cached) {
+      localStorage.setItem(CACHE_KEY, markup);
+      // Re-render immediately. Previously the fresh copy was only stored and
+      // you saw it on the *next* new tab.
+      render(markup);
+    }
+  } catch (error) {
+    console.error('Startpage update failed:', error);
+    if (!cached) {
+      renderOfflineNotice();
+    }
+  }
 }
 
 loadStartpage();

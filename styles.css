@@ -15,6 +15,20 @@ body {
   align-items: center;
   min-height: 100vh;
   position: relative;
+  /* Hidden until initStartpage() has wired everything up, so the grid never
+     appears with dead hrefs or an empty clock. */
+  opacity: 0;
+  transition: opacity 0.2s ease-in;
+}
+
+body.ready {
+  opacity: 1;
+}
+
+/* Shown only when there is no cached copy and the network is unreachable. */
+.offline {
+  text-align: center;
+  color: #666;
 }
 
 .container {

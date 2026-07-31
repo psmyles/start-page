@@ -41,11 +41,20 @@ Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
 
 # --- Files that make up the installable extension -------------------------
-# Anything not listed here is GitHub Pages content and must NOT be packaged.
+# Manifest V3 bans remote code, so all executable and presentational assets ship
+# inside the package. index.html and icon/ stay on GitHub Pages - those are the
+# ones that change often and need no re-release.
+#
+# Note styles.css / script.js / fonts are listed here AND served by Pages: one
+# copy in the repo, packaged for the extension and served for standalone preview.
+# Changing them does require a new version upload.
 $ExtensionFiles = @(
     'manifest.json'
     'local-index.html'
     'injector.js'
+    'script.js'
+    'styles.css'
+    'fonts/SwedenSansRegular.ttf'
 )
 
 $manifestPath = Join-Path $PSScriptRoot 'manifest.json'

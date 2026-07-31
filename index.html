@@ -1,6 +1,14 @@
 <!DOCTYPE html>
 <html lang="en">
 
+<!--
+  The startpage content. Edit freely and push - the extension picks it up on the
+  next new tab, no re-release needed.
+
+  Each tile needs data-local. Add data-internet only when the tile should point
+  somewhere else while away from the LAN; otherwise data-local is used for both.
+-->
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -27,107 +35,99 @@
     </div>
 
     <div class="icon-grid">
-      <a href="#" data-local="https://feedly.com/i/latest" data-internet="https://feedly.com/i/latest" class="icon">
+      <a href="#" data-local="https://feedly.com/i/latest" class="icon">
         <img src="icon/feedly.png" alt="Feedly" />
         <span>Feedly</span>
       </a>
-      <a href="#" data-local="https://reddit.com/" data-internet="https://reddit.com/" class="icon">
+      <a href="#" data-local="https://reddit.com/" class="icon">
         <img src="icon/reddit.png" alt="Reddit" />
         <span>Reddit</span>
       </a>
-      <a href="#" data-local="https://news.ycombinator.com/" data-internet="https://news.ycombinator.com/" class="icon">
+      <a href="#" data-local="https://news.ycombinator.com/" class="icon">
         <img src="icon/hackernews.png" alt="Hacker News" />
         <span>Hacker News</span>
       </a>
-      <a href="#" data-local="https://youtube.com" data-internet="https://youtube.com" class="icon">
+      <a href="#" data-local="https://youtube.com" class="icon">
         <img src="icon/youtube.png" alt="Youtube" />
         <span>Youtube</span>
       </a>
-      <a href="#" data-local="https://www.twitch.tv/directory/category/dota-2?sort=VIEWER_COUNT&tl=English"
-        data-internet="https://www.twitch.tv/directory/category/dota-2?sort=VIEWER_COUNT&tl=English" class="icon">
+      <a href="#" data-local="https://www.twitch.tv/directory/category/dota-2?sort=VIEWER_COUNT&tl=English" class="icon">
         <img src="icon/twitch.png" alt="Twitch" />
         <span>Twitch</span>
       </a>
-      <a href="#" data-local="https://www.netflix.com/browse" data-internet="https://www.netflix.com/browse"
-        class="icon">
+      <a href="#" data-local="https://www.netflix.com/browse" class="icon">
         <img src="icon/netflix.png" alt="netflix" />
         <span>Netflix</span>
       </a>
-      <a href="#" data-local="https://www.crunchyroll.com/discover" data-internet="https://www.crunchyroll.com/discover"
-        class="icon">
+      <a href="#" data-local="https://www.crunchyroll.com/discover" class="icon">
         <img src="icon/crunchyroll.png" alt="crunchyroll" />
         <span>Crunchyroll</span>
       </a>
-      <a href="#" data-local="https://liquipedia.net/dota2/Main_Page"
-        data-internet="https://liquipedia.net/dota2/Main_Page" class="icon">
+      <a href="#" data-local="https://liquipedia.net/dota2/Main_Page" class="icon">
         <img src="icon/liquipedia.png" alt="Liquipedia" />
         <span>Liquipedia</span>
       </a>
-      <a href="#" data-local="https://www.ourgroceries.com/your-lists"
-        data-internet="https://www.ourgroceries.com/your-lists" class="icon">
+      <a href="#" data-local="https://www.ourgroceries.com/your-lists" class="icon">
         <img src="icon/ourgroceries.png" alt="ourgroceries" />
         <span>OurGroceries</span>
       </a>
-      <a href="#" data-local="https://swiggy.com" data-internet="https://swiggy.com" class="icon">
+      <a href="#" data-local="https://swiggy.com" class="icon">
         <img src="icon/swiggy.png" alt="Swiggy" />
         <span>Swiggy</span>
       </a>
-      <a href="#" data-local="https://blinkit.com/" data-internet="https://blinkit.com/" class="icon">
+      <a href="#" data-local="https://blinkit.com/" class="icon">
         <img src="icon/blinkit.png" alt="blinkit" />
         <span>Blinkit</span>
       </a>
-      <a href="#" data-local="https://amazon.in" data-internet="https://amazon.in" class="icon">
+      <a href="#" data-local="https://amazon.in" class="icon">
         <img src="icon/amazon.png" alt="Amazon" />
         <span>Amazon</span>
       </a>
-      <a href="#" data-local="https://employ.remote.com/dashboard" data-internet="https://employ.remote.com/dashboard"
-        class="icon">
+      <a href="#" data-local="https://employ.remote.com/dashboard" class="icon">
         <img src="icon/remote.png" alt="remote" />
         <span>Remote</span>
       </a>
-      <a href="#" data-local="https://view.money/" data-internet="https://view.money/" class="icon">
+      <a href="#" data-local="https://view.money/" class="icon">
         <img src="icon/fold.png" alt="fold" />
         <span>Fold</span>
       </a>
-      <a href="#" data-local="https://keep.google.com/u/0/" data-internet="https://keep.google.com/u/0/" class="icon">
+      <a href="#" data-local="https://keep.google.com/u/0/" class="icon">
         <img src="icon/keep.png" alt="keep" />
         <span>Keep</span>
       </a>
-      <a href="#" data-local="https://chatgpt.com/" data-internet="https://chatgpt.com/" class="icon">
+      <a href="#" data-local="https://chatgpt.com/" class="icon">
         <img src="icon/chatgpt.png" alt="chatgpt" />
         <span>ChatGPT</span>
       </a>
-      <a href="#" data-local="https://claude.ai/" data-internet="https://claude.ai/" class="icon">
+      <a href="#" data-local="https://claude.ai/" class="icon">
         <img src="icon/claude.png" alt="claude" />
         <span>Claude</span>
       </a>
-      <a href="#" data-local="https://gemini.google.com/app" data-internet="https://gemini.google.com/app" class="icon">
+      <a href="#" data-local="https://gemini.google.com/app" class="icon">
         <img src="icon/gemini.png" alt="gemini" />
         <span>Gemini</span>
       </a>
-      <a href="#" data-local="https://github.com/psmyles" data-internet="https://github.com/psmyles" class="icon">
+      <a href="#" data-local="https://github.com/psmyles" class="icon">
         <img src="icon/github.png" alt="github" />
         <span>Github</span>
       </a>
-      <a href="#" data-local="https://web.ente.io/gallery" data-internet="https://web.ente.io/gallery" class="icon">
+      <a href="#" data-local="https://web.ente.io/gallery" class="icon">
         <img src="icon/ente.png" alt="ente" />
         <span>Ente Photos</span>
       </a>
-      <a href="#" data-local="https://photos.google.com/" data-internet="https://photos.google.com/" class="icon">
+      <a href="#" data-local="https://photos.google.com/" class="icon">
         <img src="icon/google-photos.png" alt="google-photos" />
         <span>Google Photos</span>
       </a>
-      <a href="#" data-local="https://www.google.com/maps" data-internet="https://www.google.com/maps" class="icon">
+      <a href="#" data-local="https://www.google.com/maps" class="icon">
         <img src="icon/maps.png" alt="maps" />
         <span>Google Maps</span>
       </a>
-      <a href="#" data-local="https://controld.com/dashboard/statistics"
-        data-internet="https://controld.com/dashboard/statistics" class="icon">
+      <a href="#" data-local="https://controld.com/dashboard/statistics" class="icon">
         <img src="icon/controld.png" alt="controld" />
         <span>Control D</span>
       </a>
-      <a href="#" data-local="https://login.tailscale.com/admin/machines"
-        data-internet="https://login.tailscale.com/admin/machines" class="icon">
+      <a href="#" data-local="https://login.tailscale.com/admin/machines" class="icon">
         <img src="icon/tailscale.png" alt="tailscale" />
         <span>Tailscale</span>
       </a>

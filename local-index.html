@@ -1,13 +1,21 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-    <meta charset="UTF-8">
-    <title>New Tab</title>
-    <style>
-        body { background-color: #000; margin: 0; overflow: hidden; }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>New Tab</title>
+  <!-- Bundled with the extension, so it is on disk before the first paint.
+       This is what removes the white flash - no critical-CSS trick needed. -->
+  <link rel="stylesheet" href="styles.css" />
 </head>
+
 <body>
-    <script src="injector.js"></script>
+  <!-- Body is filled in by injector.js from the markup hosted on GitHub Pages.
+       script.js loads first so that initStartpage() exists by the time the
+       markup lands. -->
+  <script src="script.js"></script>
+  <script src="injector.js"></script>
 </body>
+
 </html>
