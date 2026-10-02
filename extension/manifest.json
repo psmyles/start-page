@@ -1,13 +1,13 @@
 {
   "manifest_version": 3,
   "name": "My Startpage",
-  "version": "4.0",
+  "version": "4.1",
   "description": "Loads my personal startpage from GitHub.",
   "icons": {
     "48": "icon.png"
   },
   "chrome_url_overrides": {
-    "newtab": "local-index.html"
+    "newtab": "index.html"
   },
   "host_permissions": [
     "https://psmyles.github.io/*"

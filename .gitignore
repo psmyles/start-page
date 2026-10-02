@@ -1,5 +1,6 @@
-# Build output - regenerate with .\build-extension.ps1
+# Build output - regenerate with: python3 build-extension.py
 dist/
 
 # Signed packages downloaded back from AMO
 *.xpi
+.DS_Store
