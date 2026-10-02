@@ -1,0 +1,32 @@
+{
+  "links": [
+    {"name": "Feedly", "icon": "icon/feedly.png", "local": "https://feedly.com/i/latest"},
+    {"name": "Reddit", "icon": "icon/reddit.png", "local": "https://reddit.com/"},
+    {"name": "Hacker News", "icon": "icon/hackernews.png", "local": "https://news.ycombinator.com/"},
+    {"name": "Youtube", "icon": "icon/youtube.png", "local": "https://youtube.com"},
+    {"name": "Twitch", "icon": "icon/twitch.png", "local": "https://www.twitch.tv/directory/category/dota-2?sort=VIEWER_COUNT&tl=English"},
+    {"name": "Netflix", "icon": "icon/netflix.png", "local": "https://www.netflix.com/browse"},
+    {"name": "Crunchyroll", "icon": "icon/crunchyroll.png", "local": "https://www.crunchyroll.com/discover"},
+    {"name": "Liquipedia", "icon": "icon/liquipedia.png", "local": "https://liquipedia.net/dota2/Main_Page"},
+    {"name": "OurGroceries", "icon": "icon/ourgroceries.png", "local": "https://www.ourgroceries.com/your-lists"},
+    {"name": "Swiggy", "icon": "icon/swiggy.png", "local": "https://swiggy.com"},
+    {"name": "Blinkit", "icon": "icon/blinkit.png", "local": "https://blinkit.com/"},
+    {"name": "Amazon", "icon": "icon/amazon.png", "local": "https://amazon.in"},
+    {"name": "Remote", "icon": "icon/remote.png", "local": "https://employ.remote.com/dashboard"},
+    {"name": "Fold", "icon": "icon/fold.png", "local": "https://view.money/"},
+    {"name": "Keep", "icon": "icon/keep.png", "local": "https://keep.google.com/u/0/"},
+    {"name": "ChatGPT", "icon": "icon/chatgpt.png", "local": "https://chatgpt.com/"},
+    {"name": "Claude", "icon": "icon/claude.png", "local": "https://claude.ai/"},
+    {"name": "Gemini", "icon": "icon/gemini.png", "local": "https://gemini.google.com/app"},
+    {"name": "Github", "icon": "icon/github.png", "local": "https://github.com/psmyles"},
+    {"name": "Ente Photos", "icon": "icon/ente.png", "local": "https://web.ente.io/gallery"},
+    {"name": "Google Photos", "icon": "icon/google-photos.png", "local": "https://photos.google.com/"},
+    {"name": "Google Maps", "icon": "icon/maps.png", "local": "https://www.google.com/maps"},
+    {"name": "Control D", "icon": "icon/controld.png", "local": "https://controld.com/dashboard/statistics"},
+    {"name": "Tailscale", "icon": "icon/tailscale.png", "local": "https://login.tailscale.com/admin/machines"},
+    {"name": "Unifi Network", "icon": "icon/unifi-network.png", "local": "https://192.168.0.1/network/default/dashboard", "internet": "https://unifi.ui.com/"},
+    {"name": "Home Assistant", "icon": "icon/home-assistant.png", "local": "http://192.168.0.198:8123/lovelace", "internet": "https://fofny5no1jc46is84q9o51qsp8q2f5y4.ui.nabu.casa"},
+    {"name": "Proxmox", "icon": "icon/proxmox.png", "local": "https://192.168.0.226:8006", "internet": "https://proxmox.pizzly-ghost.ts.net/"},
+    {"name": "Paperless NGX", "icon": "icon/paperless-ngx.png", "local": "http://192.168.0.174:8000/dashboard", "internet": "https://paperless-ngx.pizzly-ghost.ts.net/dashboard"}
+  ]
+}
