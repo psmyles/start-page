@@ -27,6 +27,6 @@
     {"name": "Unifi Network", "icon": "icon/unifi-network.png", "local": "https://192.168.0.1/network/default/dashboard", "internet": "https://unifi.ui.com/"},
     {"name": "Home Assistant", "icon": "icon/home-assistant.png", "local": "http://192.168.0.198:8123/lovelace", "internet": "https://fofny5no1jc46is84q9o51qsp8q2f5y4.ui.nabu.casa"},
     {"name": "Proxmox", "icon": "icon/proxmox.png", "local": "https://192.168.0.226:8006", "internet": "https://proxmox.pizzly-ghost.ts.net/"},
-    {"name": "My Site", "icon": "icon/paperless-ngx.png", "local": "https://psmyles.com/"}
+    {"name": "My Site", "icon": "icon/my-site.png", "local": "https://psmyles.com/"}
   ]
 }
