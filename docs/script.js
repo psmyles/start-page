@@ -7,8 +7,8 @@
 // data, never executed - and the tile images.
 //
 // Every load paints from the cached links first, then fetches links.json. If it
-// differs from what is on screen, the new copy is cached and the page reloads
-// to show it.
+// comes from a newer deploy than what is on screen, the new copy is cached and
+// the page reloads to show it.
 
 const PAGES_BASE_URL = 'https://psmyles.github.io/start-page/';
 
@@ -18,18 +18,22 @@ const PAGES_BASE_URL = 'https://psmyles.github.io/start-page/';
 const REMOTE_BASE = location.protocol.endsWith('-extension:') ? PAGES_BASE_URL : '';
 
 const CACHE_KEY = 'startpage_links_v1';
+const VERSION_KEY = 'startpage_links_version'; // deploy time of the cached copy
 const LEGACY_CACHE_KEY = 'startpage_markup_v2'; // v4.0 cached scraped HTML
 const RELOADED_FLAG = 'startpage_reloaded';
 
 // Switching back to an open tab re-checks, but not more often than this.
 const RECHECK_AFTER_MS = 60 * 1000;
 // A laptop that has just woken up often has no network for the first few
-// seconds, so a failed check is retried on this schedule. After that it waits
-// for the 'online' event or for the tab to be shown again.
-const RETRY_DELAYS_MS = [2000, 5000, 15000, 30000];
+// seconds, so a failed check is retried on this schedule, and then once a
+// minute (the last delay repeats) until one gets through. A network that is up
+// but not yet working never fires 'online', so that alone can't be relied on.
+const RETRY_DELAYS_MS = [2000, 5000, 15000, 30000, 60000];
 
-// The canonical JSON of the links currently on screen, or null if none are.
+// The canonical JSON of the links currently on screen, or null if none are,
+// and the deploy time of that copy (0 if unknown).
 let shownJson = null;
+let shownVersion = 0;
 let checking = false;
 let lastCheckedAt = 0;
 let retryIndex = 0;
@@ -121,16 +125,37 @@ function parseLinks(text) {
   return JSON.stringify({ links });
 }
 
-function iconUrl(icon) {
+// GitHub Pages stamps every file with the time of the deploy that published it,
+// so this orders copies of links.json, and it changes on any push to docs/,
+// including one that only replaces an icon. 0 if the header is missing.
+function deployVersion(response) {
+  const time = Date.parse(response.headers.get('Last-Modified'));
+  return Number.isNaN(time) ? 0 : time;
+}
+
+function storedVersion() {
+  return Number(localStorage.getItem(VERSION_KEY)) || 0;
+}
+
+// The deploy time goes in the URL of Pages-hosted icons, so an icon replaced
+// under the same name is fetched afresh after the next deploy. Otherwise a tab
+// Firefox restores at startup shows whatever image it cached, however old,
+// because restored pages load their images without revalidating. The Pages CDN
+// ignores query strings, so this makes no difference on its side.
+function iconUrl(icon, version) {
   if (/^https?:\/\//.test(icon)) {
     return icon;
   }
-  return REMOTE_BASE + icon.replace(/^\.?\//, '');
+  const url = REMOTE_BASE + icon.replace(/^\.?\//, '');
+  if (!version) {
+    return url;
+  }
+  return `${url}${url.includes('?') ? '&' : '?'}v=${version}`;
 }
 
 // Built with DOM calls rather than markup, so nothing in links.json can inject
 // elements or script.
-function buildTile(link) {
+function buildTile(link, version) {
   const tile = document.createElement('a');
   tile.className = 'icon';
   tile.dataset.local = link.local;
@@ -139,7 +164,7 @@ function buildTile(link) {
   }
 
   const img = document.createElement('img');
-  img.src = iconUrl(link.icon);
+  img.src = iconUrl(link.icon, version);
   img.alt = link.name;
 
   const label = document.createElement('span');
@@ -149,11 +174,12 @@ function buildTile(link) {
   return tile;
 }
 
-function showLinks(json) {
+function showLinks(json, version) {
   const { links } = JSON.parse(json);
-  document.querySelector('.icon-grid').replaceChildren(...links.map(buildTile));
+  document.querySelector('.icon-grid').replaceChildren(...links.map(link => buildTile(link, version)));
   applyMode(isInternetMode());
   shownJson = json;
+  shownVersion = version;
   document.body.classList.add('ready');
 }
 
@@ -172,20 +198,22 @@ function readCache() {
     return null;
   }
   try {
-    return parseLinks(cached);
+    return { json: parseLinks(cached), version: storedVersion() };
   } catch (error) {
     console.warn('Discarding unreadable link cache:', error);
     localStorage.removeItem(CACHE_KEY);
+    localStorage.removeItem(VERSION_KEY);
     return null;
   }
 }
 
-function applyUpdate(fresh) {
+function applyUpdate(fresh, version) {
   localStorage.setItem(CACHE_KEY, fresh);
+  localStorage.setItem(VERSION_KEY, String(version));
 
   // First run: nothing on screen to replace, so no reload needed.
   if (shownJson === null) {
-    showLinks(fresh);
+    showLinks(fresh, version);
     return;
   }
 
@@ -199,10 +227,9 @@ function applyUpdate(fresh) {
 }
 
 function scheduleRetry() {
-  if (retryIndex < RETRY_DELAYS_MS.length) {
-    retryTimer = setTimeout(checkForUpdate, RETRY_DELAYS_MS[retryIndex]);
-    retryIndex += 1;
-  }
+  const delay = RETRY_DELAYS_MS[Math.min(retryIndex, RETRY_DELAYS_MS.length - 1)];
+  retryTimer = setTimeout(checkForUpdate, delay);
+  retryIndex += 1;
 }
 
 async function checkForUpdate() {
@@ -213,20 +240,29 @@ async function checkForUpdate() {
   clearTimeout(retryTimer);
 
   try {
-    // 'no-cache' makes Firefox revalidate rather than reuse its own copy. The
-    // GitHub Pages CDN can still hand back its copy for up to ten minutes
-    // after a push - it ignores query strings, so that cannot be busted.
-    const response = await fetch(`${REMOTE_BASE}links.json`, { cache: 'no-cache' });
+    // A new URL every time, so Firefox's HTTP cache can never answer this.
+    // 'no-cache' alone is not enough: while Firefox considers itself offline
+    // (common just after launch on a laptop) it serves cached copies without
+    // revalidating, and the page's own cache flags can override the request's.
+    // The stale copy then looked like a successful check, so the tab stopped
+    // trying and kept showing old links. Now that case fails and is retried.
+    // The Pages CDN ignores the query string, so it can still hand back its
+    // copy of the previous deploy for up to ten minutes after a push; the
+    // version check below stops that from replacing a newer one.
+    const response = await fetch(`${REMOTE_BASE}links.json?t=${Date.now()}`, { cache: 'no-store' });
     if (!response.ok) {
       throw new Error(`HTTP ${response.status}`);
     }
 
     const fresh = parseLinks(await response.text());
+    const version = deployVersion(response);
     lastCheckedAt = Date.now();
     retryIndex = 0;
 
-    if (fresh !== shownJson) {
-      applyUpdate(fresh);
+    if (version && version < Math.max(shownVersion, storedVersion())) {
+      console.warn('Ignoring links.json from an older deploy; the Pages CDN has not caught up yet.');
+    } else if (fresh !== shownJson || version !== shownVersion) {
+      applyUpdate(fresh, version);
     }
     reloadGuard = false;
   } catch (error) {
@@ -258,7 +294,7 @@ function start() {
 
   const cached = readCache();
   if (cached) {
-    showLinks(cached);
+    showLinks(cached.json, cached.version);
   }
   checkForUpdate();
 

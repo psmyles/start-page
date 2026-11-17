@@ -34,6 +34,9 @@ dist/                build output (gitignored)
 else while away from the LAN; otherwise `local` is used for both. Tiles appear
 in file order.
 
+Replacing an icon under the same file name works too. Any push to `docs/`
+counts as a new deploy, and the new tab reloads its icons.
+
 If `links.json` is malformed (a missing comma, a missing `name` or `local`), the
 extension rejects it and keeps showing the last good links. The reason is logged
 in the new tab's console.
@@ -67,12 +70,22 @@ To preview a `links.json` edit before pushing, serve `docs/` locally
 2. It then fetches `links.json` from Pages. Allow a minute or so for Pages to
    deploy after a push, and up to ten minutes more for the Pages CDN to let go of
    its old copy. The CDN ignores query strings, so this can't be skipped.
-3. If the links differ from what's on screen, the new copy is cached and the
-   page reloads once to show it.
-4. If the fetch fails, for example straight after the laptop wakes and the
-   network isn't up yet, it retries after 2, 5, 15 and 30 seconds, and again
-   when Firefox reports it's back online.
-5. A new tab left open checks again when you switch back to it, at most once a
+3. The fetch always goes to the network. It adds a throwaway query string, so
+   Firefox's own cache can never answer it. Without that, a tab Firefox
+   restores at startup, or one opened while Firefox still thinks it's offline,
+   got yesterday's copy from the cache, took it as up to date, and kept showing
+   old tiles.
+4. Pages stamps every file with its deploy time (`Last-Modified`). If the copy
+   comes from a newer deploy than what's on screen, it is cached and the page
+   reloads once to show it. A copy from an older deploy, which the CDN can
+   still serve for a few minutes after a push, is ignored.
+5. Icon URLs carry that deploy time (`icon/x.png?v=…`), so an icon replaced
+   under the same file name shows up after the next deploy.
+6. If the fetch fails, for example straight after the laptop wakes and the
+   network isn't up yet, it retries after 2, 5, 15 and 30 seconds, then once a
+   minute until it gets through. It also retries straight away when Firefox
+   reports it's back online.
+7. A new tab left open checks again when you switch back to it, at most once a
    minute.
 
 After an update-triggered reload, the tab won't reload again even if yet another
