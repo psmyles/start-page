@@ -92,6 +92,29 @@ After an update-triggered reload, the tab won't reload again even if yet another
 version turns up straight away. That copy is cached and shows on the next check.
 This means a flaky CDN can never trap the tab in a reload loop.
 
+## Status line
+
+The bottom-right corner shows what the last check found, which deploy of
+`links.json` is on screen, and the extension version (`web` when the page is
+opened from Pages). For example:
+
+```
+● up to date, checked 9:02 AM · links Nov 3, 12:08 PM · v4.3
+```
+
+| Dot | Message | Meaning |
+| --- | --- | --- |
+| grey | `cached, checking…` / `loading links…` | showing the cached copy (or nothing yet) while the check runs |
+| green | `up to date, checked <time>` | Pages has nothing newer than what's on screen |
+| grey | `updating…` | a newer deploy was found; the page is reloading |
+| amber | `newer links saved, shown on next check` | found yet another deploy right after reloading; it shows next time |
+| amber | `CDN sent an older deploy, ignored` | a push is still spreading through the CDN; the newer copy stays |
+| red | `can't reach Pages, showing cached, retrying` | no network yet; retries until it gets through |
+| red | `Pages sent HTTP <code>` / `links.json rejected` | Pages answered, but with an error or a malformed file; the console says why |
+
+Hover over it for the full deploy time, the last successful check and the last
+error.
+
 ## Why index.html, script.js and styles.css are in docs/ but also packaged
 
 Manifest V3 forbids extensions from running remote code, so the extension

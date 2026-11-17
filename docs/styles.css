@@ -83,6 +83,43 @@ body.ready {
   font-size: 1rem;
 }
 
+/* --- STATUS LINE ---
+   Bottom right: cache state, links deploy, extension version. The dot's colour
+   follows data-tone, set by script.js. Hover for details. */
+.status {
+  position: fixed;
+  right: 14px;
+  bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: .4rem;
+  font-size: 0.75rem;
+  color: #6a6a6a;
+  white-space: nowrap;
+  cursor: default;
+}
+
+.status::before {
+  content: "";
+  flex: none;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background-color: #6a6a6a;
+}
+
+.status[data-tone="ok"]::before {
+  background-color: #2f9a62;
+}
+
+.status[data-tone="warn"]::before {
+  background-color: #c9a227;
+}
+
+.status[data-tone="error"]::before {
+  background-color: #d0524a;
+}
+
 /* --- TOGGLE STYLES --- */
 .toggle-wrapper {
   position: absolute;
@@ -176,5 +213,12 @@ input:checked + .slider:before {
 
   .icon {
     width: 90px;
+  }
+
+  /* In the flow below the grid, so it never covers a tile. */
+  .status {
+    position: static;
+    margin: 0 1rem 1rem;
+    white-space: normal;
   }
 }

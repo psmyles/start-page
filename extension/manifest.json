@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "My Startpage",
-  "version": "4.2",
+  "version": "4.3",
   "description": "Loads my personal startpage from GitHub.",
   "icons": {
     "48": "icon.png"

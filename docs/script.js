@@ -17,6 +17,9 @@ const PAGES_BASE_URL = 'https://psmyles.github.io/start-page/';
 // which also lets a local server on docs/ preview uncommitted edits.
 const REMOTE_BASE = location.protocol.endsWith('-extension:') ? PAGES_BASE_URL : '';
 
+// The extension's own version, or null when this runs as the web page.
+const EXTENSION_VERSION = globalThis.browser?.runtime?.getManifest?.().version ?? null;
+
 const CACHE_KEY = 'startpage_links_v1';
 const VERSION_KEY = 'startpage_links_version'; // deploy time of the cached copy
 const LEGACY_CACHE_KEY = 'startpage_markup_v2'; // v4.0 cached scraped HTML
@@ -45,17 +48,24 @@ let retryTimer = null;
 let reloadGuard = sessionStorage.getItem(RELOADED_FLAG) === '1';
 sessionStorage.removeItem(RELOADED_FLAG);
 
+// The most recent failed check, with its time, for the status line's tooltip.
+let lastError = '';
+
+// 12-hour time to match the clock, e.g. "9:05 AM".
+function clockTime(date) {
+  let hours = date.getHours();
+  const minutes = String(date.getMinutes()).padStart(2, '0');
+  const ampm = hours >= 12 ? 'PM' : 'AM';
+  hours = hours % 12 || 12;
+  return `${hours}:${minutes} ${ampm}`;
+}
+
 function updateDateTime() {
   const now = new Date();
   const options = { year: 'numeric', month: 'long', day: 'numeric' };
 
-  let hours = now.getHours();
-  const minutes = String(now.getMinutes()).padStart(2, '0');
-  const ampm = hours >= 12 ? 'PM' : 'AM';
-  hours = hours % 12 || 12;
-
   document.getElementById('date').textContent = now.toLocaleDateString(undefined, options);
-  document.getElementById('time').textContent = `${hours}:${minutes} ${ampm}`;
+  document.getElementById('time').textContent = clockTime(now);
 }
 
 function isInternetMode() {
@@ -192,6 +202,59 @@ function showOfflineNotice() {
   document.body.classList.add('ready');
 }
 
+// The deploy time of a copy of links.json, e.g. "3 Nov, 12:08 PM".
+function deployLabel(version) {
+  const date = new Date(version);
+  return `${date.toLocaleDateString(undefined, { day: 'numeric', month: 'short' })}, ${clockTime(date)}`;
+}
+
+// The status line in the corner: what the last check found, which deploy of
+// links.json is on screen, and the extension version. The tone colours its dot
+// (ok, busy, warn, error), and hovering it shows the details.
+function setStatus(tone, text) {
+  const parts = [text];
+  if (shownJson !== null) {
+    parts.push(shownVersion ? `links ${deployLabel(shownVersion)}` : 'links undated');
+  }
+  parts.push(EXTENSION_VERSION ? `v${EXTENSION_VERSION}` : 'web');
+
+  let shownDetail = 'No links on screen';
+  if (shownJson !== null) {
+    shownDetail = shownVersion
+      ? `Links on screen: deploy of ${new Date(shownVersion).toLocaleString()}`
+      : 'Links on screen: deploy time unknown';
+  }
+  const details = [
+    EXTENSION_VERSION ? `Extension ${EXTENSION_VERSION}` : 'Web page, not the extension',
+    shownDetail,
+    lastCheckedAt
+      ? `Last successful check: ${clockTime(new Date(lastCheckedAt))}`
+      : 'No successful check yet in this tab',
+  ];
+  if (lastError) {
+    details.push(`Last error: ${lastError}`);
+  }
+
+  const status = document.getElementById('status');
+  status.textContent = parts.join(' · ');
+  status.title = details.join('\n');
+  status.dataset.tone = tone;
+}
+
+function markUpToDate() {
+  setStatus('ok', `up to date, checked ${clockTime(new Date(lastCheckedAt))}`);
+}
+
+function describeFailure(error) {
+  if (error instanceof TypeError) {
+    return "can't reach Pages";
+  }
+  if (/^HTTP /.test(error.message)) {
+    return `Pages sent ${error.message}`;
+  }
+  return 'links.json rejected';
+}
+
 function readCache() {
   const cached = localStorage.getItem(CACHE_KEY);
   if (!cached) {
@@ -214,14 +277,17 @@ function applyUpdate(fresh, version) {
   // First run: nothing on screen to replace, so no reload needed.
   if (shownJson === null) {
     showLinks(fresh, version);
+    markUpToDate();
     return;
   }
 
   if (reloadGuard) {
     console.warn('Links changed again straight after reloading; cached, will show next time.');
+    setStatus('warn', 'newer links saved, shown on next check');
     return;
   }
 
+  setStatus('busy', 'updating…');
   sessionStorage.setItem(RELOADED_FLAG, '1');
   location.reload();
 }
@@ -261,15 +327,20 @@ async function checkForUpdate() {
 
     if (version && version < Math.max(shownVersion, storedVersion())) {
       console.warn('Ignoring links.json from an older deploy; the Pages CDN has not caught up yet.');
+      setStatus('warn', 'CDN sent an older deploy, ignored');
     } else if (fresh !== shownJson || version !== shownVersion) {
       applyUpdate(fresh, version);
+    } else {
+      markUpToDate();
     }
     reloadGuard = false;
   } catch (error) {
     console.error('Startpage update check failed:', error);
+    lastError = `${clockTime(new Date())}, ${error}`;
     if (shownJson === null) {
       showOfflineNotice();
     }
+    setStatus('error', `${describeFailure(error)}${shownJson === null ? '' : ', showing cached'}, retrying`);
     scheduleRetry();
   } finally {
     checking = false;
@@ -296,6 +367,7 @@ function start() {
   if (cached) {
     showLinks(cached.json, cached.version);
   }
+  setStatus('busy', cached ? 'cached, checking…' : 'loading links…');
   checkForUpdate();
 
   window.addEventListener('online', () => {
