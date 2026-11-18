@@ -12,6 +12,7 @@ docs/          Served by GitHub Pages - this folder is the site root
   script.js      builds the grid, clock, toggle, updates  (also bundled, see below)
   styles.css     theme                                    (also bundled, see below)
   fonts/         SwedenSans                               (also bundled, see below)
+  sw.js          removes the early-2026 service worker; keep it (see below)
 
 extension/     The Firefox add-on
   manifest.json
@@ -114,6 +115,20 @@ opened from Pages). For example:
 
 Hover over it for the full deploy time, the last successful check and the last
 error.
+
+## Why docs/sw.js exists
+
+For a few days in early 2026 the site registered a service worker. It cached
+the page (the tiles were in the markup then) and served that copy before trying
+the network. Deleting `sw.js` didn't uninstall it: browsers keep the worker they
+have and treat the 404 as a failed update. So any browser that installed it went
+on showing the January 2026 tiles for `psmyles.github.io/start-page/`, even after
+a normal reload.
+
+The current `sw.js` replaces that worker. Firefox checks for an update after
+each visit, installs this one, and it deletes the old caches, unregisters itself
+and reloads the page from the network. Nothing registers it, and it isn't
+packaged into the extension. Leave it in place.
 
 ## Why index.html, script.js and styles.css are in docs/ but also packaged
 
